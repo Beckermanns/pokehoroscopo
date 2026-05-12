@@ -1,0 +1,19 @@
+{
+  "name": "pokehoroscopo",
+  "version": "1.0.0",
+  "description": "El Oráculo Pokémon - Tests Unitarios",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "dev": "node -e \"const http=require('http'),fs=require('fs'),path=require('path');const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml'};http.createServer((r,s)=>{let p=r.url==='/'?'/index.html':r.url;fs.readFile(__dirname+p,(e,d)=>{if(e){s.writeHead(404);s.end('404');return;}s.writeHead(200,{'Content-Type':mime[path.extname(p)]||'text/plain'});s.end(d)})}).listen(3000,()=>console.log('Server: http://localhost:3000'))\""
+  },
+  "keywords": ["pokemon", "horoscope", "testing"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

@@ -1,0 +1,334 @@
+<!--
+  @fileoverview Punto de entrada principal de El Oráculo Pokémon
+  @description Aplicación web que vincula signos zodiacales con Pokémon para generar predicciones diarias únicas
+  @author Arquitectura Frontend
+  @version 1.0.0
+  @since 1.0.0
+  @requires src/css/styles.css
+  @requires src/js/app.js
+-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="El Oráculo Pokémon - Predicciones diarias únicas vinculando tu signo zodiacal con un Pokémon">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="color-scheme" content="dark light">
+    <title>El Oráculo Pokémon</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+    <!-- Skip link para accesibilidad -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <!-- Contenedor principal de la aplicación -->
+    <div id="app" class="app-container">
+        <!-- Header -->
+        <header class="app-header" role="banner">
+            <h1 class="app-title">✨ El Oráculo Pokémon ✨</h1>
+            <p class="app-subtitle" role="doc-subtitle">Descubre tu predicción astral diaria</p>
+
+            <!-- Botón de configuración -->
+            <button
+                id="btn-settings"
+                class="btn btn-settings"
+                aria-label="Abrir configuración"
+                aria-expanded="false"
+                aria-controls="settings-panel"
+            >
+                <span aria-hidden="true">⚙️</span>
+                <span class="sr-only">Configuración</span>
+            </button>
+        </header>
+
+        <!-- Área de contenido principal -->
+        <main id="main-content" class="app-main" role="main" aria-live="polite">
+            <!-- Aquí se renderizarán las vistas dinámicamente -->
+            <section id="view-container" class="view-container" aria-label="Contenido principal">
+                <!-- Vista de configuración (inicial) -->
+                <div id="setup-view" class="view setup-view" role="region" aria-labelledby="setup-title">
+                    <div class="card setup-card">
+                        <h2 id="setup-title" class="card-title">Configura tu Perfil</h2>
+
+                        <form id="setup-form" class="setup-form" novalidate>
+                            <div class="form-group">
+                                <label for="user-name" class="form-label">
+                                    Tu Nombre
+                                    <span class="form-optional">(opcional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="user-name"
+                                    name="userName"
+                                    class="form-input"
+                                    placeholder="Ingresa tu nombre"
+                                    maxlength="50"
+                                    autocomplete="given-name"
+                                    aria-describedby="user-name-hint"
+                                >
+                                <span id="user-name-hint" class="form-hint">Este nombre se mostrará en tu carta astral</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="birthdate" class="form-label">
+                                    Fecha de Nacimiento
+                                </label>
+                                <input
+                                    type="date"
+                                    id="birthdate"
+                                    name="birthdate"
+                                    class="form-input"
+                                    autocomplete="bday"
+                                    aria-describedby="birthdate-hint"
+                                >
+                                <span id="birthdate-hint" class="form-hint">O selecciona tu signo directamente abajo</span>
+                            </div>
+
+                            <div class="form-group">
+                                <span class="form-label" id="zodiac-label">Selecciona tu Signo (alternativo)</span>
+                                <div
+                                    id="zodiac-grid"
+                                    class="zodiac-grid"
+                                    role="radiogroup"
+                                    aria-labelledby="zodiac-label"
+                                >
+                                    <!-- Los signos se renderizan dinámicamente -->
+                                </div>
+                            </div>
+
+                            <button type="button" id="btn-submit-form" class="btn btn-primary" aria-describedby="submit-hint">
+                                🔮 Ver Mi Carta Astral
+                            </button>
+                            <span id="submit-hint" class="sr-only">Mostrará tu horóscopo y Pokémon del día</span>
+                        </form>
+
+                        <button id="btn-consult-other" class="btn btn-secondary" aria-label="Consultar horóscopo de otro signo sin guardar">
+                            Consultar otro signo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vista de consulta rápida de signos -->
+                <div id="zodiac-selector-view" class="view zodiac-selector-view hidden" role="region" aria-labelledby="selector-title">
+                    <div class="card">
+                        <h2 id="selector-title" class="card-title">Selecciona un Signo</h2>
+                        <div
+                            id="zodiac-selector-grid"
+                            class="zodiac-grid zodiac-grid-large"
+                            role="listbox"
+                            aria-label="Signos zodiacales disponibles"
+                        >
+                            <!-- Los signos se renderizan dinámicamente -->
+                        </div>
+                        <button id="btn-back-to-profile" class="btn btn-secondary btn-back">
+                            ← Volver a mi perfil
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vista de Carta Astral -->
+                <div id="horoscope-view" class="view horoscope-view hidden" role="region" aria-labelledby="horoscope-title">
+                    <div class="astral-card" role="article" aria-label="Tu carta astral del día">
+                        <!-- Header de la carta -->
+                        <header class="astral-header">
+                            <span id="user-greeting" class="astral-greeting" aria-live="polite">¡Hola, Usuario!</span>
+                            <div class="astral-sign" role="group" aria-label="Tu signo zodiacal">
+                                <span id="sign-symbol" class="sign-symbol" aria-hidden="true">♈</span>
+                                <span id="sign-name" class="sign-name">Aries</span>
+                            </div>
+                        </header>
+
+                        <!-- Fecha del día -->
+                        <time id="current-date" class="astral-date" datetime="">
+                            12 de Mayo, 2026
+                        </time>
+
+                        <!-- Texto del horóscopo -->
+                        <article class="horoscope-text" aria-labelledby="horoscope-title">
+                            <h3 id="horoscope-title" class="sr-only">Tu predicción del día</h3>
+                            <p id="horoscope-content" aria-live="polite">
+                                Cargando tu predicción...
+                            </p>
+                            <div class="horoscope-tags" role="list" aria-label="Etiquetas de tu predicción">
+                                <span id="tag-1" class="tag tag-primary" role="listitem">#Victoria</span>
+                                <span id="tag-2" class="tag tag-secondary" role="listitem">#Acción</span>
+                            </div>
+                        </article>
+
+                        <!-- Sección del Pokémon -->
+                        <section class="pokemon-section" aria-labelledby="pokemon-section-title">
+                            <h3 id="pokemon-section-title" class="pokemon-title">Tu Pokémon del Día</h3>
+
+                            <div class="pokemon-display">
+                                <div class="pokemon-sprite-container">
+                                    <img
+                                        id="pokemon-sprite"
+                                        src=""
+                                        alt=""
+                                        class="pokemon-sprite"
+                                        loading="lazy"
+                                        aria-describedby="pokemon-name"
+                                    >
+                                    <div class="pokemon-shine" aria-hidden="true"></div>
+                                    <div id="pokemon-sprite-status" class="sr-only" aria-live="polite"></div>
+                                </div>
+
+                                <div class="pokemon-info">
+                                    <span id="pokemon-name" class="pokemon-name">???</span>
+                                    <div id="pokemon-types" class="pokemon-types" role="list" aria-label="Tipos del Pokémon">
+                                        <span class="type-badge type-fire" role="listitem">Fuego</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p id="pokemon-justification" class="pokemon-justification" aria-live="polite">
+                                Tu energía tipo Fuego representa el espíritu ardiente de Aries.
+                            </p>
+                        </section>
+
+                        <!-- Acciones -->
+                        <footer class="astral-actions" role="group" aria-label="Acciones disponibles">
+                            <button id="btn-consult-other-sign" class="btn btn-outline">
+                                Consultar otro signo
+                            </button>
+                            <button id="btn-edit-profile" class="btn btn-outline">
+                                Editar mi perfil
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer" role="contentinfo">
+            <p>El Oráculo Pokémon &copy; 2026 | Powered by PokéAPI</p>
+        </footer>
+    </div>
+
+    <!-- Overlay de carga -->
+    <div id="loading-overlay" class="loading-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="loading-title" aria-hidden="true">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <p id="loading-title" class="loading-text">Consultando los astros...</p>
+        <div class="loading-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="loading-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div id="loading-progress-bar" class="loading-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Panel de configuración -->
+    <div id="settings-overlay" class="settings-overlay" aria-hidden="true"></div>
+    <aside
+        id="settings-panel"
+        class="settings-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+        aria-hidden="true"
+    >
+        <header class="settings-panel-header">
+            <h2 id="settings-title">Configuración</h2>
+            <button id="btn-close-settings" class="toast-close" aria-label="Cerrar configuración">×</button>
+        </header>
+
+        <section class="settings-section">
+            <h3 class="settings-section-title">Apariencia</h3>
+
+            <div class="settings-option">
+                <div>
+                    <span class="settings-option-label">Tema</span>
+                    <p class="settings-option-description">Cambia entre modo oscuro y claro</p>
+                </div>
+                <button
+                    id="toggle-theme"
+                    class="toggle-switch"
+                    role="switch"
+                    aria-checked="false"
+                    aria-label="Alternar tema oscuro/claro"
+                ></button>
+            </div>
+
+            <div class="settings-option">
+                <div>
+                    <span class="settings-option-label">Animaciones</span>
+                    <p class="settings-option-description">Activar o desactivar animaciones</p>
+                </div>
+                <button
+                    id="toggle-animations"
+                    class="toggle-switch active"
+                    role="switch"
+                    aria-checked="true"
+                    aria-label="Alternar animaciones"
+                ></button>
+            </div>
+
+            <div class="settings-option">
+                <div>
+                    <span class="settings-option-label">Reducir movimiento</span>
+                    <p class="settings-option-description">Para usuarios sensibles al movimiento</p>
+                </div>
+                <button
+                    id="toggle-reduced-motion"
+                    class="toggle-switch"
+                    role="switch"
+                    aria-checked="false"
+                    aria-label="Alternar reducción de movimiento"
+                ></button>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <h3 class="settings-section-title">Datos</h3>
+
+            <div class="settings-option">
+                <div>
+                    <span class="settings-option-label">Limpiar cache</span>
+                    <p class="settings-option-description">Eliminar datos almacenados localmente</p>
+                </div>
+                <button id="btn-clear-cache" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.8rem;">
+                    Limpiar
+                </button>
+            </div>
+
+            <div class="settings-option">
+                <div>
+                    <span class="settings-option-label">Exportar datos</span>
+                    <p class="settings-option-description">Descarga una copia de seguridad</p>
+                </div>
+                <button id="btn-export-data" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.8rem;">
+                    Exportar
+                </button>
+            </div>
+        </section>
+    </aside>
+
+    <!-- Contenedor de toasts -->
+    <div id="toast-container" class="toast-container" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Scripts de la aplicación -->
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            import('./src/js/app.js')
+                .then(module => {
+                    console.log('App loaded');
+                    if (module.initApp) module.initApp();
+                })
+                .catch(err => console.error('Error:', err));
+        });
+    </script>
+</body>
+</html>
