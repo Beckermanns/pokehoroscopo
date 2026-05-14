@@ -254,6 +254,19 @@ p:last-child {
     position: relative;
 }
 
+.pokeball-icon {
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
+    margin: 0 0.3em;
+    animation: pokeball-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pokeball-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
 .app-title {
     font-size: var(--fs-display);
     font-weight: 700;
@@ -263,6 +276,11 @@ p:last-child {
     background-clip: text;
     text-shadow: 0 0 30px rgba(233, 69, 96, 0.3);
     margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.2em;
 }
 
 .app-subtitle {
