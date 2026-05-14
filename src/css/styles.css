@@ -555,6 +555,90 @@ p:last-child {
 }
 
 /* ============================================
+   BOTONES DE COMPARTIR
+   ============================================ */
+
+.share-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+.btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--border-radius-full);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.btn-share svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-share-whatsapp {
+    background: #25D366;
+    color: white;
+}
+
+.btn-share-whatsapp:hover {
+    background: #128C7E;
+    transform: scale(1.1);
+}
+
+.btn-share-facebook {
+    background: #1877F2;
+    color: white;
+}
+
+.btn-share-facebook:hover {
+    background: #0D65D9;
+    transform: scale(1.1);
+}
+
+.btn-share-twitter {
+    background: #000000;
+    color: white;
+}
+
+.btn-share-twitter:hover {
+    background: #1a1a1a;
+    transform: scale(1.1);
+}
+
+.btn-share-copy {
+    background: var(--accent-secondary);
+    color: var(--text-primary);
+}
+
+.btn-share-copy:hover {
+    background: var(--accent-primary);
+    transform: scale(1.1);
+}
+
+.btn-share:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+}
+
+/* Tema claro para botones */
+:root.theme-light .btn-share-copy {
+    background: var(--bg-card);
+    border: 1px solid var(--accent-secondary);
+}
+
+:root.theme-light .btn-share-copy:hover {
+    background: var(--accent-secondary);
+    color: white;
+}
+
+/* ============================================
    CARTA ASTRAL
    ============================================ */
 

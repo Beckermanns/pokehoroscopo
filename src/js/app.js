@@ -188,6 +188,12 @@ function cacheElements() {
     elements.toggleReducedMotion = document.getElementById('toggle-reduced-motion');
     elements.btnClearCache = document.getElementById('btn-clear-cache');
     elements.btnExportData = document.getElementById('btn-export-data');
+
+    // Share buttons
+    elements.btnShareWhatsapp = document.getElementById('btn-share-whatsapp');
+    elements.btnShareFacebook = document.getElementById('btn-share-facebook');
+    elements.btnShareTwitter = document.getElementById('btn-share-twitter');
+    elements.btnShareCopy = document.getElementById('btn-share-copy');
 }
 
 /**
@@ -320,6 +326,20 @@ function setupEventListeners() {
     
     // Delegar clicks en las grillas de signos
     document.addEventListener('click', handleZodiacGridClick);
+
+    // Share buttons
+    if (elements.btnShareWhatsapp) {
+        elements.btnShareWhatsapp.addEventListener('click', () => shareViaNative() || shareToWhatsApp());
+    }
+    if (elements.btnShareFacebook) {
+        elements.btnShareFacebook.addEventListener('click', () => shareViaNative() || shareToFacebook());
+    }
+    if (elements.btnShareTwitter) {
+        elements.btnShareTwitter.addEventListener('click', () => shareViaNative() || shareToTwitter());
+    }
+    if (elements.btnShareCopy) {
+        elements.btnShareCopy.addEventListener('click', copyToClipboard);
+    }
 }
 
 /**
@@ -1085,6 +1105,89 @@ function removeToast(toast) {
     if (toast && toast.parentNode) {
         toast.classList.add('toast-exit');
         setTimeout(() => toast.remove(), 300);
+    }
+}
+
+// ============================================================================
+// FUNCIONES DE COMPARTIR
+// ============================================================================
+
+async function shareViaNative() {
+    if (navigator.share) {
+        const content = generateShareContent();
+        try {
+            await navigator.share({
+                title: 'Mi Horóscopo Pokémon',
+                text: content
+            });
+            return true;
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('Error sharing:', err);
+            }
+            return false;
+        }
+    }
+    return false;
+}
+
+function generateShareContent() {
+    const sign = state.currentSign;
+    const horoscope = state.currentHoroscope;
+    const pokemon = state.currentPokemon;
+    const userName = state.userProfile?.name || 'viajero';
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const signInfo = sign ? `${sign.symbol} ${sign.name}` : 'Tu horóscopo';
+    const pokemonInfo = pokemon ? `Tu Pokémon del día: ${pokemon.name}` : '';
+    const tags = horoscope?.tags ? horoscope.tags.map(t => `#${t}`).join(' ') : '';
+
+    let content = `🔮 ${signInfo}\n${userName} - ${dateStr}\n\n"${horoscope?.text || 'Tu predicción'}"\n\n${tags}\n\n${pokemonInfo}\n\n✨ El Oráculo Pokémon`;
+
+    return content;
+}
+
+async function shareToWhatsApp() {
+    const content = generateShareContent();
+    const encodedContent = encodeURIComponent(content);
+    const whatsappUrl = `https://wa.me/?text=${encodedContent}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+function shareToFacebook() {
+    const pageUrl = encodeURIComponent(window.location.href);
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+}
+
+function shareToTwitter() {
+    const content = generateShareContent();
+    const tweetText = content.length > 280 ? content.substring(0, 277) + '...' : content;
+    const encodedText = encodeURIComponent(tweetText);
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+    window.open(twitterUrl, '_blank', 'width=600,height=400');
+}
+
+async function copyToClipboard() {
+    const content = generateShareContent();
+    try {
+        await navigator.clipboard.writeText(content);
+        showToast('Copiado', 'Texto copiado al portapapeles', 'success');
+    } catch (err) {
+        const textArea = document.createElement('textarea');
+        textArea.value = content;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast('Copiado', 'Texto copiado al portapapeles', 'success');
+        } catch (e) {
+            showToast('Error', 'No se pudo copiar el texto', 'error');
+        }
+        document.body.removeChild(textArea);
     }
 }
 
